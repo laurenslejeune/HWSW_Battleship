@@ -113,16 +113,40 @@ reg  [7:0] leds;
 
 assign clock = CLOCK_50;
 assign RxD = GPIO[1];
-assign LEDR[7:0] = leds;
+assign LEDR[7:0] =  (master_slave) ? transmitted_data : leds;
 
+wire TxD_start;
+assign TxD_start = SW[0];
+
+
+wire master_slave;
+assign master_slave = SW[9];
+
+wire reset;
+assign reset=!KEY[0];
+
+wire TxD_pin, z;
+assign TxD_pin = (master_slave) ? GPIO[3] : z;
+
+reg counter_led;
+wire [7:0] transmitted_data;
 PLL_25MHz PLL(.refclk(clock),.rst(1'b0),.outclk_0(clk_25));
+master_tester master(clk_25, reset, TxD_start, TxD_pin, transmitted_data);
+slave_tester slave(clk_25, RxD, RxD_data_ready, RxD_data);
+//counter ctr(clk_25, reset, 12500000, tick);
 
-async_receiver async_receiver(.clk(clk_25),.RxD(RxD),.RxD_data_ready(RxD_data_ready),.RxD_data(RxD_data), .RxD_idle(RxD_idle), .RxD_endofpacket(RxD_endofpacket));
+wire [31:0] counter_output;
+free_running_counter ctr(clk_25,reset,counter_output);
 
-always @(posedge clk_25) 
-	if(RxD_data_ready) 
-			leds = RxD_data;
+/*always @(clk_25)
+	if (tick)
+		counter_led = ~counter_led;
+*/
+assign LEDR[9] = counter_output[24];
 		
-	
+always @(posedge clk_25) 
+	if(RxD_data_ready && !master_slave) //&& master_slave) 
+			leds = RxD_data;
+
 
 endmodule

@@ -1,10 +1,10 @@
-Analysis & Synthesis Status : Successful - Mon Apr 29 11:15:56 2019
+Analysis & Synthesis Status : Successful - Mon Apr 29 14:37:06 2019
 Quartus Prime Version : 16.1.0 Build 196 10/24/2016 SJ Lite Edition
 Revision Name : UART_test
 Top-level Entity Name : UART_test
 Family : Cyclone V
 Logic utilization (in ALMs) : N/A
-Total registers : 42
+Total registers : 74
 Total pins : 204
 Total virtual pins : 0
 Total block memory bits : 0
