@@ -1,10 +1,15 @@
 #include <stdio.h>
 
+//Game settings
 #define DIMENSION 10
+#define NUM_SHIPS 4
 
 //Boolean definitions
 #define FALSE -1
 #define TRUE 0
+
+//Board settings
+#define NONE -1
 
 //Orientations definitions
 #define HORIZONTAL 0
@@ -15,6 +20,11 @@
 #define DOWN 1
 #define LEFT 2
 #define RIGHT 3
+
+//Enemy Tile status flags
+#define UNDEFINED -1
+#define HIT 0
+#define SUNK 1
 
 /*
 Coordinate system:
@@ -30,8 +40,9 @@ y
 
 typedef struct Tile
 {
-    int shipId;   // Ship ID if any, -1 otherwise
-    int isHit;    // 0 if not hit, 1 if hit
+    int shipId;     // Ship ID if any, -1 otherwise
+    int isHit;      // 0 if not hit, 1 if hit
+    int spriteIndex;// used for visualization, gives the part of the ship
 } Tile;
 
 typedef struct Ship
@@ -39,12 +50,19 @@ typedef struct Ship
     int size;
 } Ship;
 
+typedef struct EnemyTile
+{
+    int status;
+} EnemyTile;
 
-Ship ships[4];
+Ship ships[NUM_SHIPS];
 
 Tile game_board[DIMENSION][DIMENSION];
 Tile placement_board[DIMENSION][DIMENSION];
-Tile enemy_board[DIMENSION][DIMENSION];
+EnemyTile enemy_board[DIMENSION][DIMENSION];
+
+//Define an empty tile, that represents sea tiles
+Tile emptyTile;
 
 //The placement X and Y coordinates always indicate the upper left coordinates
 int placementX, placementY, placementOrientation;
@@ -139,8 +157,8 @@ void moveShipUP()
 
     if(orientation == VERTICAL)
     {
-        placement_board[x][y - 1].shipId = placement_board[x][y].shipId; 
-        placement_board[x][y + size -1].shipId = FALSE;
+        placement_board[x][y - 1] = placement_board[x][y]; 
+        placement_board[x][y + size -1] = emptyTile;
         placementY--;
     }
     else
@@ -163,16 +181,16 @@ void moveShipDOWN()
 
     if(orientation == VERTICAL)
     {
-        placement_board[x][y + size].shipId = placement_board[x][y].shipId; 
-        placement_board[x][y].shipId = FALSE;
+        placement_board[x][y + size] = placement_board[x][y]; 
+        placement_board[x][y] = emptyTile;
         placementY++;
     }
     else
     {
         for(int i = 0; i < size; i++)
         {
-            placement_board[x + i][y + 1].shipId = placement_board[x + i][y].shipId;
-            placement_board[x + i][y].shipId = FALSE;
+            placement_board[x + i][y + 1] = placement_board[x + i][y];
+            placement_board[x + i][y] = emptyTile;
         }
         placementY++;
     }
@@ -187,8 +205,8 @@ void moveShipLEFT()
 
     if(orientation == HORIZONTAL)
     {
-        placement_board[x-1][y].shipId = placement_board[x][y].shipId; 
-        placement_board[x + size - 1][y].shipId = FALSE;
+        placement_board[x-1][y] = placement_board[x][y]; 
+        placement_board[x + size - 1][y] = emptyTile;
         placementX--;
     }
     else
@@ -211,16 +229,16 @@ void moveShipRIGHT()
 
     if(orientation == HORIZONTAL)
     {
-        placement_board[x + size][y].shipId = placement_board[x][y].shipId; 
-        placement_board[x][y].shipId = FALSE;
+        placement_board[x + size][y] = placement_board[x][y]; 
+        placement_board[x][y] = emptyTile;
         placementX++;
     }
     else
     {
         for(int i = 0; i < size; i++)
         {
-            placement_board[x + 1][y + i].shipId = placement_board[x][y + i].shipId;
-            placement_board[x][y + i].shipId = FALSE;
+            placement_board[x + 1][y + i] = placement_board[x][y + i];
+            placement_board[x][y + i] = emptyTile;
         }
         placementX++;
     }
@@ -295,8 +313,8 @@ int rotateShip()
         {
             for(int i=1;i<size;i++)
             {
-                placement_board[x][y+i].shipId = placement_board[x+i][y].shipId;
-                placement_board[x+i][y].shipId = FALSE; 
+                placement_board[x][y+i] = placement_board[x+i][y];
+                placement_board[x+i][y] = emptyTile; 
             }
             placementOrientation = VERTICAL;
         }
@@ -304,8 +322,8 @@ int rotateShip()
         {
             for(int i=1;i<size;i++)
             {
-                placement_board[x+i][y].shipId = placement_board[x][y+i].shipId;
-                placement_board[x][y+i].shipId = FALSE; 
+                placement_board[x+i][y] = placement_board[x][y+i];
+                placement_board[x][y+i] = emptyTile; 
             }
             placementOrientation = HORIZONTAL;
         }
@@ -330,14 +348,14 @@ int canBeFixed()
     {
         if (orientation == 0)
         {
-            if (game_board[x+i][y].shipId != FALSE)
+            if (game_board[x+i][y].shipId != NONE)
             {
                 return FALSE;
             }
         }
         else
         {
-            if (game_board[x][y+i].shipId != FALSE)
+            if (game_board[x][y+i].shipId != NONE)
             {
                 return FALSE;
             }
@@ -365,13 +383,13 @@ int fixPlacement()
         {
             if (orientation == 0)
             {
-                game_board[x+i][y].shipId = placement_board[x+i][y].shipId;
-                placement_board[x+i][y].shipId = FALSE;
+                game_board[x+i][y] = placement_board[x+i][y];
+                placement_board[x+i][y] = emptyTile;
             }
             else
             {
-                game_board[x][y+i].shipId = placement_board[x][y+i].shipId;
-                placement_board[x][y+i].shipId = FALSE;
+                game_board[x][y+i] = placement_board[x][y+i];
+                placement_board[x][y+i] = emptyTile;
             }
         }
         return TRUE;
@@ -420,54 +438,63 @@ void printGlobalBoard()
 
 void initializeBoards()
 {
+    emptyTile.isHit = FALSE;
+    emptyTile.shipId = NONE;
+    emptyTile.spriteIndex = NONE;
+
+    EnemyTile tile;
+    tile.status = UNDEFINED;
     for(int i=0;i<DIMENSION;i++)
     {
         for(int j=0;j<DIMENSION;j++)
         {
-            Tile t;
-            t.isHit = FALSE;
-            t.shipId = -1;
-            placement_board[j][i] = t;
-            game_board[j][i] = t;
+            placement_board[j][i] = emptyTile;
+            game_board[j][i] = emptyTile;
+            enemy_board[j][i] = tile;
         }
     }
 }
 
-void main()
-{   
-    initializeBoards();
-    Ship ship;
-    ship.size = 4;
-    int currentId = 0;
-    addShip(ship, currentId);
-    printPlacementBoard();
-    while(1)
+
+void placementPhase(int verbose)
+{
+
+    //In the placement phase, all ships are place on the game board.
+    for(int i = 0; i<NUM_SHIPS;i++)
     {
-        int movement;
-        scanf("%d",&movement);
-        printf("\n");
-        if(movement == 5)
+        //Generate a new ship
+        Ship ship;
+        ship.size = i + 2;
+        addShip(ship,i);
+
+        if(verbose == TRUE) printGlobalBoard();
+        //Place the ship on the desired location
+        while(1)
         {
-            int fixing = fixPlacement();
-            if(fixing == TRUE)
+            int action;
+            scanf("%d",&action);
+
+            if(action==5)
             {
-                currentId++;
-                addShip(ship,currentId);
+                fixPlacement();
+                break;
+            }
+            else if(action==4)
+            {
+                rotateShip();
             }
             else
             {
-                printf("Cannot place here\n");
+                moveShip(action);
             }
-            
+            if(verbose == TRUE) printGlobalBoard();
         }
-        else if (movement==4)
-        {
-            rotateShip();
-        }
-        else
-        {
-            moveShip(movement);
-        }
-        printGlobalBoard();
     }
+}
+
+
+void main()
+{   
+    initializeBoards();
+    placementPhase(TRUE);
 }
