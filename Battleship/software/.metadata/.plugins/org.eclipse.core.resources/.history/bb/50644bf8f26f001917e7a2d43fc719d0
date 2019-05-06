@@ -1,0 +1,11 @@
+#include "../gameVisualizer_bsp/system.h"
+
+int main()
+{
+	int * start = GAMEMEMORY_AVALON_INTERFACE_0_BASE;
+	for(int i = 0; i < GAMEMEMORY_AVALON_INTERFACE_0_SPAN / 32; i++)
+	{
+		*(start + i) = 2*i;
+	}
+	return 0;
+}

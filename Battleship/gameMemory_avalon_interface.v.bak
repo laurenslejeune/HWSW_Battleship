@@ -1,0 +1,4 @@
+module gameMemory_avalon_interface(clock, resetn, writedata, readdata,
+											  write, read,byteenable, chipselect,
+											  Q_address, Q_export);
+											  

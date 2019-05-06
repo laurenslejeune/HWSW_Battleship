@@ -1,0 +1,2 @@
+//int getReceivedX();
+//int getReceivedY();

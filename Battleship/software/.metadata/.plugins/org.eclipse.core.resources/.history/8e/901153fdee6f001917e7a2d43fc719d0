@@ -1,0 +1,7 @@
+#include "../gameVisualizer_bsp/system.h"
+
+void main()
+{
+	int * start = GAMEMEMORY_AVALON_INTERFACE_0_BASE;
+	for
+}
