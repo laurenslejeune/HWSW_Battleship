@@ -1,9 +1,10 @@
 #include <stdio.h>
+#include "FPGA.h"
 
 //Game settings
-#define DIMENSION 10
-#define NUM_SHIPS 4
-
+#define DIMENSION 10    //Dimension of the playing board
+#define NUM_SHIPS 4     //Number of ships
+#define N_BITS 4        //Number of bits used to encode tiles
 //Boolean definitions
 #define FALSE -1
 #define TRUE 0
@@ -411,6 +412,7 @@ void printPlacementBoard()
     }
 }
 
+
 void printGlobalBoard()
 {
     for(int i = 0; i<DIMENSION;i++)
@@ -455,6 +457,101 @@ void initializeBoards()
     }
 }
 
+int encodeTile(Tile t)
+{
+    if(t.shipId ==NONE)
+    {
+        return 0;
+    }
+    else
+    {
+        return 15;
+    }
+    
+}
+
+/*
+bits = char array to but the bit chars into
+val = value to turn into bits
+n   = number of bits
+*/
+void toBinary(char * bits,int val, int n)
+{
+    int index = 0;
+    for(int i = n-1; i>=0;i--)
+    {   
+        if((1 << i) <= val)
+        {
+            bits[index] = 1 + '0';
+            val -=(1 << i);
+        }
+        else
+        {
+            bits[index] = 0 + '0';
+        }
+        //printf("(1 << i) = %d, val = %d\n",(1<<i),val);
+        index++;
+    }
+}
+
+void write_memory_file()
+{
+    FILE *fp;
+    fp = fopen("test.mif", "w+");
+    
+    int nextDim = 16;
+    fprintf(fp,"DEPTH = %d;\n",nextDim*nextDim);
+    fprintf(fp,"WIDTH = %d;\n",4);
+    fprintf(fp,"ADDRESS_RADIX = BIN;\n");
+    fprintf(fp,"DATA_RADIX = BIN;\n");
+    fprintf(fp,"CONTENT\n");
+    fprintf(fp,"BEGIN\n\n");
+
+
+
+    for(int i=0;i<nextDim;i++)
+    {
+        for(int j=0;j<nextDim;j++)
+        {
+            if(i < DIMENSION && j < DIMENSION)
+            {
+                Tile relevantTile = game_board[j][i];
+            
+                //Generate bits for the address
+                char j_addr[4];
+                toBinary(j_addr,j,4);
+                char i_addr[4];
+                toBinary(i_addr,i,4);
+                char address[] = {i_addr[0],i_addr[1],i_addr[2],i_addr[3],j_addr[0],j_addr[1],j_addr[2],j_addr[3]};
+                
+                //Generate data bits
+                char data[4];
+                int val = encodeTile(relevantTile);
+                toBinary(data,val,4);
+                fprintf(fp, " %s :  %.*s;\n",address,4,data);
+                //printf("i=%d,j=%d,tile=%d,Address=%s\n",i,j,game_board[j][i].shipId,address);
+            }
+            else
+            {
+                char j_addr[4];
+                toBinary(j_addr,j,4);
+                char i_addr[4];
+                toBinary(i_addr,i,4);
+                char address[] = {i_addr[0],i_addr[1],i_addr[2],i_addr[3],j_addr[0],j_addr[1],j_addr[2],j_addr[3]};
+                
+                //Generate data bits
+                char data[4];
+                toBinary(data,0,4);
+                fprintf(fp, " %s :  %.*s;\n",address,4,data);
+            }
+            
+        }
+    }
+
+    fprintf(fp,"END;");
+    fclose(fp);
+
+}
 
 void placementPhase(int verbose)
 {
@@ -492,9 +589,18 @@ void placementPhase(int verbose)
     }
 }
 
+void gameplayPhase()
+{
+
+}
+
+//FPGA settings:
+int isMaster = TRUE;
 
 void main()
 {   
     initializeBoards();
     placementPhase(TRUE);
+    //write_memory_file();
+    gameplayPhase();
 }
