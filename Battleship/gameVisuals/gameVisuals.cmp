@@ -1,10 +1,13 @@
 	component gameVisuals is
 		port (
 			clk_clk                : in  std_logic                     := 'X';             -- clk
+			communication_input    : in  std_logic_vector(5 downto 0)  := (others => 'X'); -- input
+			communication_output   : out std_logic_vector(5 downto 0);                     -- output
 			gameboardinfo_data_out : out std_logic_vector(31 downto 0);                    -- data_out
 			gameboardinfo_address  : in  std_logic_vector(7 downto 0)  := (others => 'X'); -- address
 			gameboardinfo_data_in  : in  std_logic_vector(31 downto 0) := (others => 'X'); -- data_in
 			gameboardinfo_wren     : in  std_logic                     := 'X';             -- wren
+			masterslave_ismaster   : in  std_logic                     := 'X';             -- ismaster
 			reset_reset_n          : in  std_logic                     := 'X'              -- reset_n
 		);
 	end component gameVisuals;

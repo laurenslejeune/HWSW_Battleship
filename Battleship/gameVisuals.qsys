@@ -17,6 +17,22 @@
          type = "int";
       }
    }
+   element communication_0
+   {
+      datum _sortIndex
+      {
+         value = "4";
+         type = "int";
+      }
+   }
+   element communication_0.avalon_slave_0
+   {
+      datum baseAddress
+      {
+         value = "37892";
+         type = "String";
+      }
+   }
    element gameMemory_avalon_interface_0
    {
       datum _sortIndex
@@ -40,6 +56,22 @@
       datum baseAddress
       {
          value = "36864";
+         type = "String";
+      }
+   }
+   element masterSlave_0
+   {
+      datum _sortIndex
+      {
+         value = "5";
+         type = "int";
+      }
+   }
+   element masterSlave_0.avalon_slave_0
+   {
+      datum baseAddress
+      {
+         value = "37888";
          type = "String";
       }
    }
@@ -97,6 +129,11 @@
  <parameter name="useTestBenchNamingPattern" value="false" />
  <instanceScript></instanceScript>
  <interface name="clk" internal="clk_0.clk_in" type="clock" dir="end" />
+ <interface
+   name="communication"
+   internal="communication_0.conduit_end"
+   type="conduit"
+   dir="end" />
  <interface name="conduit" internal="gameMemory_avalon_interface_0.conduit_end" />
  <interface
    name="conduit_out"
@@ -106,6 +143,11 @@
    internal="gameMemory_avalon_interface_0.conduit_in"
    type="conduit"
    dir="end" />
+ <interface
+   name="masterslave"
+   internal="masterSlave_0.conduit_end"
+   type="conduit"
+   dir="end" />
  <interface name="reset" internal="clk_0.clk_in_reset" type="reset" dir="end" />
  <module name="clk_0" kind="clock_source" version="16.1" enabled="1">
   <parameter name="clockFrequency" value="50000000" />
@@ -113,11 +155,13 @@
   <parameter name="inputClockFrequency" value="0" />
   <parameter name="resetSynchronousEdges" value="NONE" />
  </module>
+ <module name="communication_0" kind="communication" version="1.0" enabled="1" />
  <module
    name="gameMemory_avalon_interface_0"
    kind="gameMemory_avalon_interface"
    version="1.0"
    enabled="1" />
+ <module name="masterSlave_0" kind="masterSlave" version="1.0" enabled="1" />
  <module
    name="nios2_qsys_0"
    kind="altera_nios2_qsys"
@@ -132,7 +176,7 @@
   <parameter name="cpuReset" value="false" />
   <parameter name="customInstSlavesSystemInfo" value="&lt;info/&gt;" />
   <parameter name="dataAddrWidth" value="16" />
-  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='onchip_memory2_0.s1' start='0x4000' end='0x8000' /><slave name='nios2_qsys_0.jtag_debug_module' start='0x8800' end='0x9000' /><slave name='gameMemory_avalon_interface_0.avalon_slave_0' start='0x9000' end='0x9400' /></address-map>]]></parameter>
+  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='onchip_memory2_0.s1' start='0x4000' end='0x8000' /><slave name='nios2_qsys_0.jtag_debug_module' start='0x8800' end='0x9000' /><slave name='gameMemory_avalon_interface_0.avalon_slave_0' start='0x9000' end='0x9400' /><slave name='masterSlave_0.avalon_slave_0' start='0x9400' end='0x9404' /><slave name='communication_0.avalon_slave_0' start='0x9404' end='0x9408' /></address-map>]]></parameter>
   <parameter name="dcache_bursts" value="false" />
   <parameter name="dcache_lineSize" value="32" />
   <parameter name="dcache_numTCDM" value="0" />
@@ -294,6 +338,24 @@
    kind="avalon"
    version="16.1"
    start="nios2_qsys_0.data_master"
+   end="communication_0.avalon_slave_0">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x9404" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="16.1"
+   start="nios2_qsys_0.data_master"
+   end="masterSlave_0.avalon_slave_0">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x9400" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="16.1"
+   start="nios2_qsys_0.data_master"
    end="nios2_qsys_0.jtag_debug_module">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x8800" />
@@ -338,10 +400,30 @@
    start="clk_0.clk"
    end="gameMemory_avalon_interface_0.clock_sink" />
  <connection
+   kind="clock"
+   version="16.1"
+   start="clk_0.clk"
+   end="communication_0.clock_sink" />
+ <connection
+   kind="clock"
+   version="16.1"
+   start="clk_0.clk"
+   end="masterSlave_0.clock_sink" />
+ <connection
    kind="reset"
    version="16.1"
    start="clk_0.clk_reset"
    end="gameMemory_avalon_interface_0.clock_reset" />
+ <connection
+   kind="reset"
+   version="16.1"
+   start="clk_0.clk_reset"
+   end="communication_0.reset" />
+ <connection
+   kind="reset"
+   version="16.1"
+   start="clk_0.clk_reset"
+   end="masterSlave_0.reset" />
  <connection
    kind="reset"
    version="16.1"
@@ -357,6 +439,16 @@
    version="16.1"
    start="nios2_qsys_0.jtag_debug_module_reset"
    end="gameMemory_avalon_interface_0.clock_reset" />
+ <connection
+   kind="reset"
+   version="16.1"
+   start="nios2_qsys_0.jtag_debug_module_reset"
+   end="communication_0.reset" />
+ <connection
+   kind="reset"
+   version="16.1"
+   start="nios2_qsys_0.jtag_debug_module_reset"
+   end="masterSlave_0.reset" />
  <connection
    kind="reset"
    version="16.1"

@@ -5,10 +5,13 @@
 `timescale 1 ps / 1 ps
 module gameVisuals (
 		input  wire        clk_clk,                //           clk.clk
+		input  wire [5:0]  communication_input,    // communication.input
+		output wire [5:0]  communication_output,   //              .output
 		output wire [31:0] gameboardinfo_data_out, // gameboardinfo.data_out
 		input  wire [7:0]  gameboardinfo_address,  //              .address
 		input  wire [31:0] gameboardinfo_data_in,  //              .data_in
 		input  wire        gameboardinfo_wren,     //              .wren
+		input  wire        masterslave_ismaster,   //   masterslave.ismaster
 		input  wire        reset_reset_n           //         reset.reset_n
 	);
 
@@ -29,6 +32,10 @@ module gameVisuals (
 	wire   [7:0] mm_interconnect_0_gamememory_avalon_interface_0_avalon_slave_0_address;    // mm_interconnect_0:gameMemory_avalon_interface_0_avalon_slave_0_address -> gameMemory_avalon_interface_0:address
 	wire         mm_interconnect_0_gamememory_avalon_interface_0_avalon_slave_0_write;      // mm_interconnect_0:gameMemory_avalon_interface_0_avalon_slave_0_write -> gameMemory_avalon_interface_0:write
 	wire  [31:0] mm_interconnect_0_gamememory_avalon_interface_0_avalon_slave_0_writedata;  // mm_interconnect_0:gameMemory_avalon_interface_0_avalon_slave_0_writedata -> gameMemory_avalon_interface_0:writedata
+	wire  [31:0] mm_interconnect_0_communication_0_avalon_slave_0_readdata;                 // communication_0:readdata -> mm_interconnect_0:communication_0_avalon_slave_0_readdata
+	wire         mm_interconnect_0_communication_0_avalon_slave_0_write;                    // mm_interconnect_0:communication_0_avalon_slave_0_write -> communication_0:write
+	wire  [31:0] mm_interconnect_0_communication_0_avalon_slave_0_writedata;                // mm_interconnect_0:communication_0_avalon_slave_0_writedata -> communication_0:writedata
+	wire  [31:0] mm_interconnect_0_masterslave_0_avalon_slave_0_readdata;                   // masterSlave_0:readdata -> mm_interconnect_0:masterSlave_0_avalon_slave_0_readdata
 	wire  [31:0] mm_interconnect_0_nios2_qsys_0_jtag_debug_module_readdata;                 // nios2_qsys_0:jtag_debug_module_readdata -> mm_interconnect_0:nios2_qsys_0_jtag_debug_module_readdata
 	wire         mm_interconnect_0_nios2_qsys_0_jtag_debug_module_waitrequest;              // nios2_qsys_0:jtag_debug_module_waitrequest -> mm_interconnect_0:nios2_qsys_0_jtag_debug_module_waitrequest
 	wire         mm_interconnect_0_nios2_qsys_0_jtag_debug_module_debugaccess;              // mm_interconnect_0:nios2_qsys_0_jtag_debug_module_debugaccess -> nios2_qsys_0:jtag_debug_module_debugaccess
@@ -45,9 +52,19 @@ module gameVisuals (
 	wire  [31:0] mm_interconnect_0_onchip_memory2_0_s1_writedata;                           // mm_interconnect_0:onchip_memory2_0_s1_writedata -> onchip_memory2_0:writedata
 	wire         mm_interconnect_0_onchip_memory2_0_s1_clken;                               // mm_interconnect_0:onchip_memory2_0_s1_clken -> onchip_memory2_0:clken
 	wire  [31:0] nios2_qsys_0_d_irq_irq;                                                    // irq_mapper:sender_irq -> nios2_qsys_0:d_irq
-	wire         rst_controller_reset_out_reset;                                            // rst_controller:reset_out -> [gameMemory_avalon_interface_0:resetn, irq_mapper:reset, mm_interconnect_0:nios2_qsys_0_reset_n_reset_bridge_in_reset_reset, nios2_qsys_0:reset_n, onchip_memory2_0:reset, rst_translator:in_reset]
+	wire         rst_controller_reset_out_reset;                                            // rst_controller:reset_out -> [communication_0:reset, gameMemory_avalon_interface_0:resetn, irq_mapper:reset, masterSlave_0:reset, mm_interconnect_0:nios2_qsys_0_reset_n_reset_bridge_in_reset_reset, nios2_qsys_0:reset_n, onchip_memory2_0:reset, rst_translator:in_reset]
 	wire         rst_controller_reset_out_reset_req;                                        // rst_controller:reset_req -> [nios2_qsys_0:reset_req, onchip_memory2_0:reset_req, rst_translator:reset_req_in]
 	wire         nios2_qsys_0_jtag_debug_module_reset_reset;                                // nios2_qsys_0:jtag_debug_module_resetrequest -> rst_controller:reset_in1
+
+	communication_mem_avalon_interface communication_0 (
+		.reset     (rst_controller_reset_out_reset),                             //          reset.reset
+		.writedata (mm_interconnect_0_communication_0_avalon_slave_0_writedata), // avalon_slave_0.writedata
+		.readdata  (mm_interconnect_0_communication_0_avalon_slave_0_readdata),  //               .readdata
+		.write     (mm_interconnect_0_communication_0_avalon_slave_0_write),     //               .write
+		.clock     (clk_clk),                                                    //     clock_sink.clk
+		.gpio_in   (communication_input),                                        //    conduit_end.input
+		.gpio_out  (communication_output)                                        //               .output
+	);
 
 	gameMemory_avalon_interface gamememory_avalon_interface_0 (
 		.writedata    (mm_interconnect_0_gamememory_avalon_interface_0_avalon_slave_0_writedata),  // avalon_slave_0.writedata
@@ -61,6 +78,13 @@ module gameVisuals (
 		.Q_address    (gameboardinfo_address),                                                     //               .address
 		.Q_input_data (gameboardinfo_data_in),                                                     //               .data_in
 		.Q_wren       (gameboardinfo_wren)                                                         //               .wren
+	);
+
+	masterSlave_avalon_interface masterslave_0 (
+		.reset                (rst_controller_reset_out_reset),                          //          reset.reset
+		.readdata             (mm_interconnect_0_masterslave_0_avalon_slave_0_readdata), // avalon_slave_0.readdata
+		.clock                (clk_clk),                                                 //     clock_sink.clk
+		.external_masterSlave (masterslave_ismaster)                                     //    conduit_end.ismaster
 	);
 
 	gameVisuals_nios2_qsys_0 nios2_qsys_0 (
@@ -121,11 +145,15 @@ module gameVisuals (
 		.nios2_qsys_0_instruction_master_waitrequest             (nios2_qsys_0_instruction_master_waitrequest),                               //                                             .waitrequest
 		.nios2_qsys_0_instruction_master_read                    (nios2_qsys_0_instruction_master_read),                                      //                                             .read
 		.nios2_qsys_0_instruction_master_readdata                (nios2_qsys_0_instruction_master_readdata),                                  //                                             .readdata
+		.communication_0_avalon_slave_0_write                    (mm_interconnect_0_communication_0_avalon_slave_0_write),                    //               communication_0_avalon_slave_0.write
+		.communication_0_avalon_slave_0_readdata                 (mm_interconnect_0_communication_0_avalon_slave_0_readdata),                 //                                             .readdata
+		.communication_0_avalon_slave_0_writedata                (mm_interconnect_0_communication_0_avalon_slave_0_writedata),                //                                             .writedata
 		.gameMemory_avalon_interface_0_avalon_slave_0_address    (mm_interconnect_0_gamememory_avalon_interface_0_avalon_slave_0_address),    // gameMemory_avalon_interface_0_avalon_slave_0.address
 		.gameMemory_avalon_interface_0_avalon_slave_0_write      (mm_interconnect_0_gamememory_avalon_interface_0_avalon_slave_0_write),      //                                             .write
 		.gameMemory_avalon_interface_0_avalon_slave_0_readdata   (mm_interconnect_0_gamememory_avalon_interface_0_avalon_slave_0_readdata),   //                                             .readdata
 		.gameMemory_avalon_interface_0_avalon_slave_0_writedata  (mm_interconnect_0_gamememory_avalon_interface_0_avalon_slave_0_writedata),  //                                             .writedata
 		.gameMemory_avalon_interface_0_avalon_slave_0_chipselect (mm_interconnect_0_gamememory_avalon_interface_0_avalon_slave_0_chipselect), //                                             .chipselect
+		.masterSlave_0_avalon_slave_0_readdata                   (mm_interconnect_0_masterslave_0_avalon_slave_0_readdata),                   //                 masterSlave_0_avalon_slave_0.readdata
 		.nios2_qsys_0_jtag_debug_module_address                  (mm_interconnect_0_nios2_qsys_0_jtag_debug_module_address),                  //               nios2_qsys_0_jtag_debug_module.address
 		.nios2_qsys_0_jtag_debug_module_write                    (mm_interconnect_0_nios2_qsys_0_jtag_debug_module_write),                    //                                             .write
 		.nios2_qsys_0_jtag_debug_module_read                     (mm_interconnect_0_nios2_qsys_0_jtag_debug_module_read),                     //                                             .read

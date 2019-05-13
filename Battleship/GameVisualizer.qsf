@@ -414,15 +414,18 @@ set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
 set_global_assignment -name NUM_PARALLEL_PROCESSORS 2
-set_global_assignment -name QIP_FILE gameVisuals/synthesis/gameVisuals.qip
-set_global_assignment -name SDC_FILE GameVisualizer.SDC
+set_global_assignment -name QSYS_FILE gameVisuals.qsys
 set_global_assignment -name QIP_FILE PLL100MHz.qip
-set_global_assignment -name SIP_FILE PLL100MHz.sip
+set_global_assignment -name VERILOG_FILE vga_controller.v
+set_global_assignment -name VERILOG_FILE GameVisualizer.v
 set_global_assignment -name QIP_FILE GameMap.qip
-set_global_assignment -name VERILOG_FILE reg32.v
-set_global_assignment -name VERILOG_FILE reg32_avalon_interface.v
 set_global_assignment -name QIP_FILE game_RAM.qip
 set_global_assignment -name VERILOG_FILE gameMemory.v
 set_global_assignment -name VERILOG_FILE gameMemory_avalon_interface.v
 set_global_assignment -name VERILOG_FILE gamevisualizer.v
+set_global_assignment -name VERILOG_FILE communication_memory.v
+set_global_assignment -name VERILOG_FILE reg32.v
+set_global_assignment -name VERILOG_FILE communication_mem_avalon_interface.v
+set_global_assignment -name VERILOG_FILE masterSlave.v
+set_global_assignment -name VERILOG_FILE masterSlave_avalon_interface.v
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

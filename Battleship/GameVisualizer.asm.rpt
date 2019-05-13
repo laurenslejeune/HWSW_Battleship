@@ -1,5 +1,5 @@
 Assembler report for GameVisualizer
-Mon May 06 13:53:49 2019
+Mon May 13 11:19:32 2019
 Quartus Prime Version 16.1.0 Build 196 10/24/2016 SJ Lite Edition
 
 
@@ -39,7 +39,7 @@ agreement for further details.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Mon May 06 13:53:49 2019 ;
+; Assembler Status      ; Successful - Mon May 13 11:19:32 2019 ;
 ; Revision Name         ; GameVisualizer                        ;
 ; Top-level Entity Name ; GameVisualizer                        ;
 ; Family                ; Cyclone V                             ;
@@ -79,8 +79,8 @@ agreement for further details.
 ; Option         ; Setting                                                              ;
 +----------------+----------------------------------------------------------------------+
 ; Device         ; 5CSEMA5F31C6                                                         ;
-; JTAG usercode  ; 0x0134FCB2                                                           ;
-; Checksum       ; 0x0134FCB2                                                           ;
+; JTAG usercode  ; 0x012E64D3                                                           ;
+; Checksum       ; 0x012E64D3                                                           ;
 +----------------+----------------------------------------------------------------------+
 
 
@@ -90,13 +90,13 @@ agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus Prime Assembler
     Info: Version 16.1.0 Build 196 10/24/2016 SJ Lite Edition
-    Info: Processing started: Mon May 06 13:53:42 2019
+    Info: Processing started: Mon May 13 11:19:26 2019
 Info: Command: quartus_asm --read_settings_files=off --write_settings_files=off GameVisualizer -c GameVisualizer
 Info (115030): Assembler is generating device programming files
 Info: Quartus Prime Assembler was successful. 0 errors, 0 warnings
     Info: Peak virtual memory: 4854 megabytes
-    Info: Processing ended: Mon May 06 13:53:49 2019
-    Info: Elapsed time: 00:00:07
+    Info: Processing ended: Mon May 13 11:19:32 2019
+    Info: Elapsed time: 00:00:06
     Info: Total CPU time (on all processors): 00:00:07
 
 

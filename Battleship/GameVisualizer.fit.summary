@@ -1,16 +1,16 @@
-Fitter Status : Successful - Mon May 06 13:53:40 2019
+Fitter Status : Successful - Mon May 13 11:19:24 2019
 Quartus Prime Version : 16.1.0 Build 196 10/24/2016 SJ Lite Edition
 Revision Name : GameVisualizer
 Top-level Entity Name : GameVisualizer
 Family : Cyclone V
 Device : 5CSEMA5F31C6
 Timing Models : Final
-Logic utilization (in ALMs) : 631 / 32,070 ( 2 % )
-Total registers : 899
+Logic utilization (in ALMs) : 612 / 32,070 ( 2 % )
+Total registers : 850
 Total pins : 168 / 457 ( 37 % )
 Total virtual pins : 0
-Total block memory bits : 149,904 / 4,065,280 ( 4 % )
-Total RAM Blocks : 22 / 397 ( 6 % )
+Total block memory bits : 149,504 / 4,065,280 ( 4 % )
+Total RAM Blocks : 21 / 397 ( 5 % )
 Total DSP Blocks : 0 / 87 ( 0 % )
 Total HSSI RX PCSs : 0
 Total HSSI PMA RX Deserializers : 0

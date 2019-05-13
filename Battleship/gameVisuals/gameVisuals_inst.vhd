@@ -1,21 +1,27 @@
 	component gameVisuals is
 		port (
 			clk_clk                : in  std_logic                     := 'X';             -- clk
+			communication_input    : in  std_logic_vector(5 downto 0)  := (others => 'X'); -- input
+			communication_output   : out std_logic_vector(5 downto 0);                     -- output
 			gameboardinfo_data_out : out std_logic_vector(31 downto 0);                    -- data_out
 			gameboardinfo_address  : in  std_logic_vector(7 downto 0)  := (others => 'X'); -- address
 			gameboardinfo_data_in  : in  std_logic_vector(31 downto 0) := (others => 'X'); -- data_in
 			gameboardinfo_wren     : in  std_logic                     := 'X';             -- wren
-			reset_reset_n          : in  std_logic                     := 'X'              -- reset_n
+			reset_reset_n          : in  std_logic                     := 'X';             -- reset_n
+			masterslave_ismaster   : in  std_logic                     := 'X'              -- ismaster
 		);
 	end component gameVisuals;
 
 	u0 : component gameVisuals
 		port map (
 			clk_clk                => CONNECTED_TO_clk_clk,                --           clk.clk
+			communication_input    => CONNECTED_TO_communication_input,    -- communication.input
+			communication_output   => CONNECTED_TO_communication_output,   --              .output
 			gameboardinfo_data_out => CONNECTED_TO_gameboardinfo_data_out, -- gameboardinfo.data_out
 			gameboardinfo_address  => CONNECTED_TO_gameboardinfo_address,  --              .address
 			gameboardinfo_data_in  => CONNECTED_TO_gameboardinfo_data_in,  --              .data_in
 			gameboardinfo_wren     => CONNECTED_TO_gameboardinfo_wren,     --              .wren
-			reset_reset_n          => CONNECTED_TO_reset_reset_n           --         reset.reset_n
+			reset_reset_n          => CONNECTED_TO_reset_reset_n,          --         reset.reset_n
+			masterslave_ismaster   => CONNECTED_TO_masterslave_ismaster    --   masterslave.ismaster
 		);
 
